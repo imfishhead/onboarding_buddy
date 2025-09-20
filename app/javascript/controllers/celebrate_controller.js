@@ -9,6 +9,12 @@ export default class extends Controller {
       this.#confettiAtEvent(event)
       this.#ringPulse()
     } catch (_) {}
+    
+    // Ensure form submission continues
+    if (event.type === 'click' && event.target.type === 'submit') {
+      // Don't prevent default for submit buttons
+      return
+    }
   }
 
   #confettiAtEvent(event) {

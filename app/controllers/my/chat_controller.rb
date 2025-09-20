@@ -39,6 +39,6 @@ class My::ChatController < ApplicationController
       meta: reply_meta
     )
 
-    redirect_to my_chat_index_path(as: params[:as])
+    redirect_to my_onboarding_path(as: params[:as])
   end
 end

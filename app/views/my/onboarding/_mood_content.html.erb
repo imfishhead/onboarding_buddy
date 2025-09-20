@@ -82,50 +82,29 @@
     <div class="mt-4">
         <div class="text-xs text-gray-500 mb-2">今天心情如何？點選一個表情</div>
         <div class="flex items-stretch gap-2">
-          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-blue-300 hover:bg-blue-50 active:scale-95 transition" onclick="updateEnergyBall(1)">😢<div class="text-[10px] text-gray-500">很糟</div></button>
-          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-purple-300 hover:bg-purple-50 active:scale-95 transition" onclick="updateEnergyBall(2)">☹️<div class="text-[10px] text-gray-500">不佳</div></button>
-          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-gray-300 hover:bg-gray-50 active:scale-95 transition" onclick="updateEnergyBall(3)">😐<div class="text-[10px] text-gray-500">普通</div></button>
-          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-orange-300 hover:bg-orange-50 active:scale-95 transition" onclick="updateEnergyBall(4)">🙂<div class="text-[10px] text-gray-500">不錯</div></button>
-          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-yellow-300 hover:bg-yellow-50 active:scale-95 transition" onclick="updateEnergyBall(5)">😄<div class="text-[10px] text-gray-500">超棒</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-blue-300 hover:bg-blue-50 active:scale-95 transition" onclick="submitMoodCheckin(1)">😢<div class="text-[10px] text-gray-500">很糟</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-purple-300 hover:bg-purple-50 active:scale-95 transition" onclick="submitMoodCheckin(2)">☹️<div class="text-[10px] text-gray-500">不佳</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-gray-300 hover:bg-gray-50 active:scale-95 transition" onclick="submitMoodCheckin(3)">😐<div class="text-[10px] text-gray-500">普通</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-orange-300 hover:bg-orange-50 active:scale-95 transition" onclick="submitMoodCheckin(4)">🙂<div class="text-[10px] text-gray-500">不錯</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-yellow-300 hover:bg-yellow-50 active:scale-95 transition" onclick="submitMoodCheckin(5)">😄<div class="text-[10px] text-gray-500">超棒</div></button>
         </div>
     </div>
 
-    <!-- 心情趨勢 -->
-    <% trend_data = mood_trend_data(current_user) || [] %>
+    <!-- 能量球動畫 -->
     <div class="mt-4 p-4 rounded-xl border bg-white shadow-sm">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-medium text-gray-700">心情趨勢</h3>
-        <span class="text-xs text-gray-500">最近 7 天</span>
+        <h3 class="text-sm font-medium text-gray-700">能量球</h3>
+        <span class="text-xs text-gray-500">你的能量狀態</span>
       </div>
       
-      <% if trend_data.any? %>
-        <div class="flex items-end justify-between gap-1 h-20">
-          <% trend_data.each do |day| %>
-            <div class="flex-1 flex flex-col items-center">
-              <div class="w-full bg-gray-100 rounded-t-sm relative" style="height: <%= day[:score] ? (day[:score] * 12) : 8 %>px;">
-                <% if day[:score] %>
-                  <div class="absolute inset-0 bg-gradient-to-t from-emerald-400 to-emerald-300 rounded-t-sm"></div>
-                <% end %>
-              </div>
-              <div class="text-xs text-gray-500 mt-1">
-                <%= day[:day_name] %>
-              </div>
-              <div class="text-xs text-gray-400">
-                <%= day[:day_number] %>
-              </div>
-            </div>
-          <% end %>
+      <div class="flex justify-center items-center py-8 relative" style="min-height: 200px;">
+        <div class="energy">
+          <span style="--color:#fbad04;--radius:18px;--duration:2.5s;"></span>
+          <span style="--color:#03a1d9;--radius:13px;--duration:5s;"></span>
+          <span style="--color:#f7036d;--radius:15px;--duration:7.5s;"></span>
+          <span style="--color:#93ff16;--radius:20px;--duration:10s;"></span>
         </div>
-        
-        <div class="mt-3 text-xs text-gray-600">
-          <%= mood_trend_summary(trend_data) %>
-        </div>
-      <% else %>
-        <div class="text-center py-8 text-gray-500">
-          <div class="text-2xl mb-2">📊</div>
-          <p class="text-sm">開始記錄心情，查看你的情緒趨勢</p>
-        </div>
-      <% end %>
+      </div>
     </div>
   </div>
 <% end %>

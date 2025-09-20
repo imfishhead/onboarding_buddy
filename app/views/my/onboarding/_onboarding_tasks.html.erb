@@ -15,7 +15,7 @@
       <div class="space-y-3">
         <% @assignments.each do |assignment| %>
           <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div class="flex items-start justify-between">
+            <div class="flex items-center justify-between">
               <div class="flex-1">
                 <h3 class="font-medium text-gray-900 mb-1"><%= assignment.onboarding_task.title %></h3>
                 <p class="text-sm text-gray-600 mb-3"><%= assignment.onboarding_task.description %></p>
@@ -31,11 +31,10 @@
                 </div>
               </div>
               <% unless assignment.done? %>
-                <div class="ml-4">
+                <div class="ml-4 flex items-center">
                   <%= button_to "完成", my_complete_task_path(assignment, as: params[:as]), 
                       method: :patch, 
-                      class: "px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium",
-                      data: { controller: "celebrate", action: "click->celebrate#confetti" } %>
+                      class: "px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95" %>
                 </div>
               <% end %>
             </div>

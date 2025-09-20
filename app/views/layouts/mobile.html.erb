@@ -96,6 +96,8 @@
         background: white;
         border-bottom: 1px solid #e5e7eb;
         padding: 16px;
+        max-height: 40vh;
+        overflow-y: auto;
       }
       
       .chat-section {
@@ -103,6 +105,11 @@
         background: #f8fafc;
         display: flex;
         flex-direction: column;
+        min-height: 0;
+      }
+      
+      .chat-section .flex-1 {
+        min-height: 0;
       }
       
       /* 心情打卡頁面樣式 */
@@ -121,6 +128,16 @@
         .tab-icon {
           font-size: 22px;
         }
+      }
+      
+      /* 動畫 */
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      .animate-spin {
+        animation: spin 1s linear infinite;
       }
     </style>
   </head>

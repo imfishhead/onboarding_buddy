@@ -9,50 +9,138 @@
     </div>
     
     <!-- 聊天訊息區域 -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages">
-      <!-- 歡迎訊息 -->
-      <div class="flex items-start gap-3">
-        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-          <span class="material-icons text-blue-600 text-sm">smart_toy</span>
+    <div class="flex-1 overflow-y-auto p-4 space-y-3" id="chat-messages">
+      <% if @messages && @messages.any? %>
+        <% @messages.each_with_index do |m, idx| %>
+          <div class="flex <%= m.user? ? 'justify-end' : 'justify-start' %> animate-fade-up" style="animation-delay: <%= (idx * 50) %>ms">
+            <% if m.user? %>
+              <!-- 用戶訊息 -->
+              <div class="flex items-start gap-2 justify-end">
+                <div class="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-xs">
+                  <p class="text-sm"><%= simple_format h(m.content) %></p>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <span class="material-icons text-gray-600 text-sm">person</span>
+                </div>
+              </div>
+            <% else %>
+              <!-- 助手訊息 -->
+              <div class="flex items-start gap-2">
+                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <span class="material-icons text-blue-600 text-sm">smart_toy</span>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100 max-w-xs">
+                  <p class="text-sm text-gray-800"><%= simple_format h(m.content) %></p>
+                  <% if m.meta.present? %>
+                    <div class="mt-1 text-[11px] text-gray-500">
+                      <%= m.meta.slice("intent","topics").to_json %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <!-- 歡迎訊息 -->
+        <div class="flex items-start gap-2">
+          <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons text-blue-600 text-sm">smart_toy</span>
+          </div>
+          <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100 max-w-xs">
+            <p class="text-sm text-gray-800">你好！我是你的入職助手，有什麼問題都可以問我哦！</p>
+          </div>
         </div>
-        <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100 max-w-xs">
-          <p class="text-sm text-gray-800">你好！我是你的入職助手，有什麼問題都可以問我哦！</p>
-        </div>
-      </div>
-      
-      <!-- 示例訊息 -->
-      <div class="flex items-start gap-3 justify-end">
-        <div class="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-xs">
-          <p class="text-sm">我想了解公司的福利制度</p>
-        </div>
-        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-          <span class="material-icons text-gray-600 text-sm">person</span>
-        </div>
-      </div>
-      
-      <div class="flex items-start gap-3">
-        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-          <span class="material-icons text-blue-600 text-sm">smart_toy</span>
-        </div>
-        <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100 max-w-xs">
-          <p class="text-sm text-gray-800">好的！我們公司提供完整的福利制度，包括健保、年假、員工旅遊等。你可以查看員工手冊或聯繫 HR 了解更多詳情。</p>
-        </div>
-      </div>
+      <% end %>
     </div>
     
     <!-- 輸入區域 -->
-    <div class="bg-white border-t border-gray-200 p-4">
-      <div class="flex items-center gap-3">
+    <div class="bg-white border-t border-gray-200 p-4 pb-20">
+      <%= form_with url: my_chat_index_path, method: :post, class: "flex items-center gap-3", local: true do %>
+        <%= hidden_field_tag :as, params[:as] %>
         <div class="flex-1 relative">
-          <input type="text" 
-                 placeholder="輸入你的問題..." 
-                 class="w-full px-4 py-3 pr-12 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                 id="chat-input">
-          <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors">
-            <span class="material-icons text-sm">send</span>
+          <%= text_field_tag :q, nil, 
+                placeholder: "問我任何入職/生活問題，例如：通勤車怎麼申請？",
+                class: "w-full px-4 py-3 pr-12 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm",
+                required: true,
+                autocomplete: "off" %>
+          <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-all duration-300" id="send-button">
+            <span class="material-icons text-sm" id="send-icon">send</span>
           </button>
         </div>
-      </div>
+      <% end %>
     </div>
   </div>
+
+  <script>
+    // 聊天表單提交處理
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatForm = document.querySelector('form[action*="chat"]');
+      const chatInput = document.querySelector('input[name="q"]');
+      const submitButton = document.querySelector('button[type="submit"]');
+      const sendIcon = document.querySelector('#send-icon');
+      
+      if (chatForm && chatInput && submitButton && sendIcon) {
+        // 輸入框文字變化處理
+        chatInput.addEventListener('input', function() {
+          const hasText = chatInput.value.trim().length > 0;
+          
+          if (hasText) {
+            // 有文字時：飛機圖示亮起來
+            sendIcon.style.color = '#3b82f6'; // 藍色
+            sendIcon.style.transform = 'scale(1.1)';
+            sendIcon.style.filter = 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.5))';
+            submitButton.style.transform = 'translate(-50%, -50%) scale(1.05)';
+            submitButton.style.boxShadow = '0 0 12px rgba(59, 130, 246, 0.3)';
+          } else {
+            // 沒有文字時：恢復原始狀態
+            sendIcon.style.color = '#9ca3af'; // 灰色
+            sendIcon.style.transform = 'scale(1)';
+            sendIcon.style.filter = 'none';
+            submitButton.style.transform = 'translate(-50%, -50%) scale(1)';
+            submitButton.style.boxShadow = 'none';
+          }
+        });
+        
+        // 統一的提交處理函數
+        function handleSubmit() {
+          const message = chatInput.value.trim();
+          if (message === '') {
+            return false;
+          }
+          
+          // 顯示載入狀態
+          sendIcon.innerHTML = 'refresh';
+          sendIcon.style.color = '#3b82f6';
+          sendIcon.style.animation = 'spin 1s linear infinite';
+          submitButton.disabled = true;
+          chatInput.disabled = true;
+          
+          // 提交表單
+          chatForm.submit();
+          return true;
+        }
+        
+        // 表單提交處理（滑鼠點擊按鈕）
+        chatForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          handleSubmit();
+        });
+        
+        // Enter 鍵提交
+        chatInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSubmit();
+          }
+        });
+        
+        // 自動聚焦到輸入框
+        chatInput.focus();
+        
+        // 初始化狀態
+        chatInput.dispatchEvent(new Event('input'));
+      }
+    });
+  </script>
 <% end %>

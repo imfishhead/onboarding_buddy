@@ -4,6 +4,37 @@
 
 <!-- 能量球動畫和 JavaScript -->
 <script>
+  // 提交心情打卡 - 提前定義以避免 ReferenceError
+  function submitMoodCheckin(moodScore) {
+    // 立即更新能量球視覺效果
+    if (typeof updateEnergyBall === 'function') {
+      updateEnergyBall(moodScore);
+    }
+    
+    // 發送 AJAX 請求到後端
+    fetch('/my/mood_checkins', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({
+        score: moodScore,
+        as: new URLSearchParams(window.location.search).get('as')
+      })
+    })
+    .then(response => {
+      if (response.ok) {
+        // 成功後重新載入頁面以更新能量條和顯示反饋
+        window.location.reload();
+      } else {
+        console.error('心情打卡失敗');
+      }
+    })
+    .catch(error => {
+      console.error('網路錯誤:', error);
+    });
+  }
   // 常駐能量球系統
   document.addEventListener('DOMContentLoaded', function() {
     const energyBar = document.getElementById('energy-bar');
