@@ -1,0 +1,13 @@
+<div class="min-h-screen bg-white">
+  <div class="max-w-screen-sm mx-auto px-4 py-16 text-center">
+    <div class="mx-auto h-16 w-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
+      ✓
+    </div>
+    <h1 class="mt-6 text-2xl font-semibold tracking-tight">已完成任務</h1>
+    <p class="mt-2 text-sm text-gray-600">任務已標記為完成，繼續你的 Onboarding 旅程吧！</p>
+
+    <div class="mt-8">
+      <%= link_to "返回清單", my_onboarding_path(as: params[:as]), class: "inline-flex items-center justify-center px-4 py-2 rounded-full bg-indigo-600 text-white text-sm shadow hover:bg-indigo-700 active:bg-indigo-800" %>
+    </div>
+  </div>
+</div>

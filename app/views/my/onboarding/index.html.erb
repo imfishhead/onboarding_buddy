@@ -1,0 +1,140 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b animate-slide-down">
+    <div class="max-w-screen-sm mx-auto px-4 py-3 flex items-center justify-between">
+      <h1 class="text-lg font-semibold tracking-tight">我的 Onboarding</h1>
+      <div class="text-xs text-gray-600">
+        <span class="hidden sm:inline">以</span>
+        <span class="font-medium"><%= current_user.name %></span>
+        <span class="hidden sm:inline">身份瀏覽</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-screen-sm mx-auto px-4 pb-24 pt-4">
+    <% if notice %>
+      <div class="mb-4 p-3 rounded-lg bg-green-50 text-green-700 text-sm animate-scale-pop">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% wallet = current_user.try(:happiness_wallet) || current_user.create_happiness_wallet! %>
+    <div class="mt-4 p-4 rounded-xl border bg-white shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500">幸福能量</div>
+          <div class="text-xl font-semibold"><%= wallet.current_points %> pts</div>
+        </div>
+        <div class="text-sm text-gray-500">
+          <span class="align-middle">等級</span>
+          <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <%= wallet.level %>
+          </span>
+        </div>
+      </div>
+      <div class="w-full bg-gray-200/80 rounded-full h-3 mt-2 relative overflow-hidden">
+        <% pct = [[(wallet.current_points % 30) * 100 / 30, 0].max, 100].min %>
+        <% remain = 30 - (wallet.current_points % 30) %>
+        <div class="absolute inset-0 pointer-events-none grid grid-cols-6">
+          <% 6.times do |i| %>
+            <div class="border-l border-white/40"></div>
+          <% end %>
+        </div>
+        <div class="h-3 rounded-full transition-[width] duration-500 ease-out shadow-[0_0_0_1px_rgba(16,185,129,.15)] bg-gradient-to-r from-emerald-500 via-lime-400 to-emerald-500 animate-scale-pop" style="width: <%= pct %>%"></div>
+      </div>
+      <div class="mt-1 text-xs text-gray-500 flex items-center justify-between">
+        <span>距離下個等級還有 <span class="font-medium text-gray-700"><%= remain %></span> pts</span>
+        <span class="text-[11px]">每 30 pts 升 1 級</span>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs text-gray-500 mb-2">今天心情如何？點選一個表情</div>
+    <%= form_with url: my_mood_checkins_path, method: :post, class: "flex items-stretch gap-2", data: { controller: "celebrate" } do %>
+      <%= hidden_field_tag :as, params[:as] %>
+      <%= hidden_field_tag :score, nil, id: nil %>
+
+      <button name="score" value="1" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-rose-300 hover:bg-rose-50 active:scale-95 transition">😢<div class="text-[10px] text-gray-500">很糟</div></button>
+      <button name="score" value="2" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-amber-300 hover:bg-amber-50 active:scale-95 transition">☹️<div class="text-[10px] text-gray-500">不佳</div></button>
+      <button name="score" value="3" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-gray-300 hover:bg-gray-50 active:scale-95 transition">😐<div class="text-[10px] text-gray-500">普通</div></button>
+      <button name="score" value="4" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-emerald-300 hover:bg-emerald-50 active:scale-95 transition">🙂<div class="text-[10px] text-gray-500">不錯</div></button>
+      <button name="score" value="5" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-green-300 hover:bg-green-50 active:scale-95 transition">😄<div class="text-[10px] text-gray-500">超棒</div></button>
+    <% end %>
+      </div>
+    </div>
+
+    <section aria-label="progress" class="mt-2">
+      <div class="flex items-end justify-between">
+        <div>
+          <div class="text-xs text-gray-500">進度</div>
+          <div class="text-2xl font-semibold tracking-tight"><%= @progress %>%</div>
+        </div>
+        <div class="text-xs text-gray-600">
+          <%= @done %>/<%= @total %> 完成
+        </div>
+      </div>
+      <div class="w-full h-2 mt-3 bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-full bg-indigo-600 rounded-full transition-[width] duration-300 animate-scale-pop" style="width: <%= @progress %>%"></div>
+      </div>
+    </section>
+
+    <section aria-label="tasks" class="mt-6 space-y-3">
+      <% @assignments.each_with_index do |a, idx| %>
+        <div class="group relative rounded-2xl border bg-white px-4 py-3 shadow-sm active:scale-[0.998] transition <%= a.done? ? 'bg-green-50 border-green-200' : 'bg-white' %> animate-fade-up" style="animation-delay: <%= (idx * 60) %>ms">
+          <div class="flex items-start gap-3">
+            <div class="mt-0.5">
+              <% if a.done? %>
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-700">✓</span>
+              <% elsif a.blocked? %>
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700">!</span>
+              <% else %>
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-600">•</span>
+              <% end %>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="font-medium leading-tight truncate"><%= a.onboarding_task.title %></div>
+                <% if a.onboarding_task.required? %>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">必做</span>
+                <% else %>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">選修</span>
+                <% end %>
+              </div>
+
+              <% if a.onboarding_task.description.present? %>
+                <div class="text-xs text-gray-600 mt-1 line-clamp-2"><%= a.onboarding_task.description %></div>
+              <% end %>
+
+              <% if a.due_date.present? %>
+                <div class="text-[11px] text-gray-500 mt-1">到期：<%= a.due_date %></div>
+              <% end %>
+            </div>
+
+            <div class="self-center" data-controller="celebrate" data-action="click->celebrate#burst">
+              <% if a.pending? %>
+                <%= button_to "完成", my_complete_task_path(a, as: params[:as]), method: :patch,
+                      class: "px-3 py-1.5 rounded-full bg-indigo-600 text-white text-sm shadow hover:bg-indigo-700 active:bg-indigo-800" %>
+              <% elsif a.done? %>
+                <span class="text-green-700 text-sm font-medium">已完成</span>
+              <% else %>
+                <span class="text-amber-700 text-sm font-medium">擱置</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </section>
+
+    <section aria-label="demo-switch" class="mt-8 text-center text-xs text-gray-500">
+      Demo 使用者：
+      <%= link_to "Alice", my_onboarding_path(as: "alice@tsmc.com"), class: "underline" %>
+      |
+      <%= link_to "Bob", my_onboarding_path(as: "bob@tsmc.com"), class: "underline" %>
+    </section>
+    <div class="mt-6">
+        <%= link_to "打開 Chatbot（問交通/報帳/系統）", my_chat_index_path(as: params[:as]),
+            class: "underline text-indigo-700" %>
+    </div>
+  </main>
+
+  <div class="h-6 sm:h-0"></div>
+</div>

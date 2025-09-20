@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  channel: 1
+  purpose: 1
+  started_at: 2025-09-18 22:19:13
+  ended_at: 2025-09-18 22:19:13
+
+two:
+  user: two
+  channel: 1
+  purpose: 1
+  started_at: 2025-09-18 22:19:13
+  ended_at: 2025-09-18 22:19:13

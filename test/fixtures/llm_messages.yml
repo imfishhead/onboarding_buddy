@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  llm_session: one
+  role: 1
+  content: MyText
+  meta: 
+
+two:
+  llm_session: two
+  role: 1
+  content: MyText
+  meta: 
