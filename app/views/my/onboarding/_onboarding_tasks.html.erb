@@ -1,0 +1,53 @@
+<% content_for :onboarding_tasks do %>
+  <div class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b animate-slide-down">
+    <div class="max-w-screen-sm mx-auto px-4 py-3 flex items-center justify-between">
+      <h1 class="text-lg font-semibold tracking-tight">我的 Onboarding</h1>
+      <div class="text-xs text-gray-600">
+        <span class="hidden sm:inline">以</span>
+        <span class="font-medium"><%= current_user.name %></span>
+        <span class="hidden sm:inline">身份瀏覽</span>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-screen-sm mx-auto px-4 pb-4 pt-4">
+    <% if @assignments.any? %>
+      <div class="space-y-3">
+        <% @assignments.each do |assignment| %>
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h3 class="font-medium text-gray-900 mb-1"><%= assignment.onboarding_task.title %></h3>
+                <p class="text-sm text-gray-600 mb-3"><%= assignment.onboarding_task.description %></p>
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= assignment.done? ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-800' %>">
+                    <%= assignment.done? ? '✅ 已完成' : '⏳ 進行中' %>
+                  </span>
+                  <% if assignment.blocked? %>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      🚫 受阻
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              <% unless assignment.done? %>
+                <div class="ml-4">
+                  <%= button_to "完成", my_complete_task_path(assignment, as: params[:as]), 
+                      method: :patch, 
+                      class: "px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium",
+                      data: { controller: "celebrate", action: "click->celebrate#confetti" } %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <div class="text-gray-400 text-6xl mb-4">📋</div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">暫無任務</h3>
+        <p class="text-gray-500">你目前沒有待完成的入職任務</p>
+      </div>
+    <% end %>
+  </main>
+<% end %>

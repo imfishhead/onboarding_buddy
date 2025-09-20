@@ -1,4 +1,5 @@
 class My::ChatController < ApplicationController
+  layout "mobile"
   helper_method :current_user, :current_session
 
   def current_user

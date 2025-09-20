@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Onboarding Buddy</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f8fafc;
+        height: 100vh;
+        overflow: hidden;
+      }
+      
+      .mobile-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .tab-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 80px; /* 為底部 tab 留空間 */
+      }
+      
+      .tab-content.active {
+        display: block;
+      }
+      
+      .tab-content:not(.active) {
+        display: none;
+      }
+      
+      .bottom-tabs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 80px;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        z-index: 1000;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      
+      .tab-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #6b7280;
+        text-decoration: none;
+      }
+      
+      .tab-item.active {
+        color: #3b82f6;
+      }
+      
+      .tab-item:hover {
+        background: #f9fafb;
+      }
+      
+      .tab-icon {
+        font-size: 24px;
+        margin-bottom: 4px;
+      }
+      
+      .tab-label {
+        font-size: 12px;
+        font-weight: 500;
+      }
+      
+      /* 聊天室頁面樣式 */
+      .chat-page {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .onboarding-section {
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 16px;
+      }
+      
+      .chat-section {
+        flex: 1;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* 心情打卡頁面樣式 */
+      .mood-page {
+        padding: 16px;
+        height: 100%;
+        overflow-y: auto;
+      }
+      
+      /* 響應式設計 */
+      @media (max-width: 480px) {
+        .tab-label {
+          font-size: 11px;
+        }
+        
+        .tab-icon {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+
+  <body data-controller="application">
+    <div class="mobile-container">
+      <!-- 聊天室頁面 -->
+      <div id="chat-tab" class="tab-content active">
+        <div class="chat-page">
+          <!-- 上方：Onboarding Tasks -->
+          <div class="onboarding-section">
+            <%= yield :onboarding_tasks %>
+          </div>
+          
+          <!-- 下方：聊天室 -->
+          <div class="chat-section">
+            <%= yield :chat_content %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 心情打卡頁面 -->
+      <div id="mood-tab" class="tab-content">
+        <div class="mood-page">
+          <%= yield :mood_content %>
+        </div>
+      </div>
+      
+      <!-- 底部 Tab 導航 -->
+      <div class="bottom-tabs">
+        <a href="#" class="tab-item active" data-tab="chat-tab">
+          <span class="material-icons tab-icon">chat</span>
+          <span class="tab-label">聊天</span>
+        </a>
+        <a href="#" class="tab-item" data-tab="mood-tab">
+          <span class="material-icons tab-icon">mood</span>
+          <span class="tab-label">心情</span>
+        </a>
+      </div>
+    </div>
+
+    <script>
+      // Tab 切換功能
+      document.addEventListener('DOMContentLoaded', function() {
+        const tabItems = document.querySelectorAll('.tab-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabItems.forEach(item => {
+          item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetTab = this.dataset.tab;
+            
+            // 移除所有 active 類
+            tabItems.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // 添加 active 類到當前選中的 tab
+            this.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

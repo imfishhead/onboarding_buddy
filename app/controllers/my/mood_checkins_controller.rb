@@ -16,6 +16,28 @@ class My::MoodCheckinsController < ApplicationController
       trigger = SmallDelightTrigger.create!(user: current_user, trigger_type: :low_mood, payload: { score: mc.score })
       Happiness::Accrual.call(user: current_user, source: trigger, delta: 2, reason: "低分補償小確幸")
     end
-    redirect_back fallback_location: my_onboarding_path(as: params[:as]), notice: "已完成心情打卡"
+
+    feedback = MoodFeedback.generate(mc.score)
+
+    # Check for support suggestions after mood checkin
+    support_data = SupportSuggestion.check_and_suggest(current_user)
+
+    if support_data
+      session[:support_suggestions] = support_data
+    end
+
+    # Check for achievements and streak updates
+    achievements = ConsistencyTracker.check_achievements(current_user) || []
+    streak_info = ConsistencyTracker.streak_info(current_user)
+
+    if achievements.any?
+      session[:achievements] = achievements
+    end
+
+    session[:streak_info] = streak_info
+    session[:energy_animation] = true
+
+    redirect_back fallback_location: my_onboarding_path(as: params[:as]),
+                  notice: feedback[:message]
   end
 end

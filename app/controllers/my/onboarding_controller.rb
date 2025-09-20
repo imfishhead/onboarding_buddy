@@ -1,4 +1,5 @@
 class My::OnboardingController < ApplicationController
+  layout "mobile"
   helper_method :current_user
 
   # Demo 用：用 URL 參數 ?as=alice 切換使用者

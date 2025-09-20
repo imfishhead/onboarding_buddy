@@ -10,9 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_18_151900) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_20_084526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "achievements", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "achievement_type"
+    t.string "title"
+    t.text "description"
+    t.string "emoji"
+    t.string "level"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_achievements_on_user_id"
+  end
 
   create_table "happiness_transactions", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -109,6 +121,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_151900) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "achievements", "users"
   add_foreign_key "happiness_transactions", "users"
   add_foreign_key "happiness_wallets", "users"
   add_foreign_key "llm_messages", "llm_sessions"

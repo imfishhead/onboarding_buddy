@@ -1,0 +1,58 @@
+<% content_for :chat_content do %>
+  <div class="flex-1 flex flex-col h-full">
+    <!-- 聊天室標題 -->
+    <div class="bg-white border-b border-gray-200 px-4 py-3">
+      <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <span class="material-icons text-blue-600">chat</span>
+        入職助手
+      </h2>
+    </div>
+    
+    <!-- 聊天訊息區域 -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages">
+      <!-- 歡迎訊息 -->
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-blue-600 text-sm">smart_toy</span>
+        </div>
+        <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100 max-w-xs">
+          <p class="text-sm text-gray-800">你好！我是你的入職助手，有什麼問題都可以問我哦！</p>
+        </div>
+      </div>
+      
+      <!-- 示例訊息 -->
+      <div class="flex items-start gap-3 justify-end">
+        <div class="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-xs">
+          <p class="text-sm">我想了解公司的福利制度</p>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-gray-600 text-sm">person</span>
+        </div>
+      </div>
+      
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-blue-600 text-sm">smart_toy</span>
+        </div>
+        <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100 max-w-xs">
+          <p class="text-sm text-gray-800">好的！我們公司提供完整的福利制度，包括健保、年假、員工旅遊等。你可以查看員工手冊或聯繫 HR 了解更多詳情。</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 輸入區域 -->
+    <div class="bg-white border-t border-gray-200 p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex-1 relative">
+          <input type="text" 
+                 placeholder="輸入你的問題..." 
+                 class="w-full px-4 py-3 pr-12 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                 id="chat-input">
+          <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors">
+            <span class="material-icons text-sm">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

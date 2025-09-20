@@ -1,0 +1,131 @@
+<% content_for :mood_content do %>
+  <div class="max-w-screen-sm mx-auto">
+    <!-- 頁面標題 -->
+    <div class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b animate-slide-down mb-4">
+      <div class="px-4 py-3 flex items-center justify-between">
+        <h1 class="text-lg font-semibold tracking-tight flex items-center gap-2">
+          <span class="material-icons text-purple-600">mood</span>
+          心情打卡
+        </h1>
+        <div class="text-xs text-gray-600">
+          <span class="font-medium"><%= current_user.name %></span>
+        </div>
+      </div>
+    </div>
+
+    <% if notice %>
+      <div class="mb-4 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-800 text-sm animate-scale-pop shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="text-lg">💬</div>
+          <div class="flex-1">
+            <div class="font-medium mb-1">心情回饋</div>
+            <div class="leading-relaxed"><%= notice %></div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- 幸福能量卡片 -->
+    <% wallet = current_user.try(:happiness_wallet) || current_user.create_happiness_wallet! %>
+    <% streak_info = session[:streak_info] || ConsistencyTracker.streak_info(current_user) %>
+    <div class="mt-4 p-4 rounded-xl border bg-white shadow-sm relative" id="energy-card">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-sm text-gray-500">幸福能量</div>
+          <div class="text-xl font-semibold" id="energy-points"><%= wallet.current_points %> pts</div>
+        </div>
+        <div class="text-sm text-gray-500">
+          <span class="align-middle">等級</span>
+          <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <%= wallet.level %>
+          </span>
+        </div>
+      </div>
+
+      <!-- Streak Counter -->
+      <div class="mt-2 flex items-center gap-2 text-xs text-gray-600">
+        <span class="inline-flex items-center gap-1">
+          <span class="text-orange-500">🔥</span>
+          <span>連續 <%= streak_info[:current] %> 天</span>
+        </span>
+        <% if streak_info[:next_milestone] %>
+          <span class="text-gray-400">•</span>
+          <span>下個目標：<%= streak_info[:next_milestone] %> 天</span>
+        <% end %>
+      </div>
+      
+      <div class="w-full bg-gray-200/80 rounded-full h-3 mt-2 relative overflow-hidden" id="energy-bar-container">
+        <% pct = [[(wallet.current_points % 30) * 100 / 30, 0].max, 100].min %>
+        <% remain = 30 - (wallet.current_points % 30) %>
+        <div class="absolute inset-0 pointer-events-none grid grid-cols-6">
+          <% 6.times do |i| %>
+            <div class="border-l border-white/40"></div>
+          <% end %>
+        </div>
+        <div class="h-3 rounded-full transition-[width] duration-500 ease-out shadow-[0_0_0_1px_rgba(16,185,129,.15)] bg-gradient-to-r from-emerald-500 via-lime-400 to-emerald-500" 
+             id="energy-bar" 
+             style="width: <%= pct %>%"
+             data-animate="<%= session[:energy_animation] ? 'true' : 'false' %>"></div>
+      </div>
+      <div class="mt-1 text-xs text-gray-500 flex items-center justify-between">
+        <span>距離下個等級還有 <span class="font-medium text-gray-700"><%= remain %></span> pts</span>
+        <span class="text-[11px]">每 30 pts 升 1 級</span>
+      </div>
+      
+      <!-- 常駐能量球 -->
+      <div class="energy-ball-container absolute right-2 top-2 w-20 h-20 pointer-events-none" id="permanent-energy-ball">
+        <!-- 能量球會在這裡動態生成 -->
+      </div>
+    </div>
+
+    <!-- 心情打卡區域 -->
+    <div class="mt-4">
+        <div class="text-xs text-gray-500 mb-2">今天心情如何？點選一個表情</div>
+        <div class="flex items-stretch gap-2">
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-blue-300 hover:bg-blue-50 active:scale-95 transition" onclick="updateEnergyBall(1)">😢<div class="text-[10px] text-gray-500">很糟</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-purple-300 hover:bg-purple-50 active:scale-95 transition" onclick="updateEnergyBall(2)">☹️<div class="text-[10px] text-gray-500">不佳</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-gray-300 hover:bg-gray-50 active:scale-95 transition" onclick="updateEnergyBall(3)">😐<div class="text-[10px] text-gray-500">普通</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-orange-300 hover:bg-orange-50 active:scale-95 transition" onclick="updateEnergyBall(4)">🙂<div class="text-[10px] text-gray-500">不錯</div></button>
+          <button type="button" class="flex-1 aspect-square rounded-2xl border bg-white text-2xl hover:border-yellow-300 hover:bg-yellow-50 active:scale-95 transition" onclick="updateEnergyBall(5)">😄<div class="text-[10px] text-gray-500">超棒</div></button>
+        </div>
+    </div>
+
+    <!-- 心情趨勢 -->
+    <% trend_data = mood_trend_data(current_user) || [] %>
+    <div class="mt-4 p-4 rounded-xl border bg-white shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-medium text-gray-700">心情趨勢</h3>
+        <span class="text-xs text-gray-500">最近 7 天</span>
+      </div>
+      
+      <% if trend_data.any? %>
+        <div class="flex items-end justify-between gap-1 h-20">
+          <% trend_data.each do |day| %>
+            <div class="flex-1 flex flex-col items-center">
+              <div class="w-full bg-gray-100 rounded-t-sm relative" style="height: <%= day[:score] ? (day[:score] * 12) : 8 %>px;">
+                <% if day[:score] %>
+                  <div class="absolute inset-0 bg-gradient-to-t from-emerald-400 to-emerald-300 rounded-t-sm"></div>
+                <% end %>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">
+                <%= day[:day_name] %>
+              </div>
+              <div class="text-xs text-gray-400">
+                <%= day[:day_number] %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="mt-3 text-xs text-gray-600">
+          <%= mood_trend_summary(trend_data) %>
+        </div>
+      <% else %>
+        <div class="text-center py-8 text-gray-500">
+          <div class="text-2xl mb-2">📊</div>
+          <p class="text-sm">開始記錄心情，查看你的情緒趨勢</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
