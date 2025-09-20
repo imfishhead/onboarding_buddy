@@ -1,0 +1,62 @@
+<div class="max-w-3xl mx-auto p-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-semibold">我的 Onboarding</h1>
+    <div class="text-sm text-gray-500">
+      以 <span class="font-medium"><%= current_user.name %></span> 身份瀏覽
+      <%# Demo 切換使用者連結（可選） %>
+      <span class="ml-2">
+        <%= link_to "Alice", my_onboarding_path(as: "alice@tsmc.com"), class: "underline" %> |
+        <%= link_to "Bob",   my_onboarding_path(as: "bob@tsmc.com"),   class: "underline" %>
+      </span>
+    </div>
+  </div>
+
+  <% if notice %>
+    <div class="mt-4 p-3 rounded bg-green-50 text-green-700"><%= notice %></div>
+  <% end %>
+
+  <div class="mt-6">
+    <div class="flex justify-between text-sm text-gray-600">
+      <span>進度</span>
+      <span><%= @done %>/<%= @total %>（<%= @progress %>%）</span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+      <div class="bg-indigo-600 h-3 rounded-full transition-all" style="width: <%= @progress %>%"></div>
+    </div>
+  </div>
+
+  <div class="mt-8 space-y-3">
+    <% @assignments.each do |a| %>
+      <div class="border rounded-xl p-4 flex items-center justify-between <%= a.done? ? 'bg-green-50 border-green-200' : 'bg-white' %>">
+        <div>
+          <div class="font-medium">
+            <%= a.onboarding_task.title %>
+            <% if a.onboarding_task.required? %>
+              <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">必做</span>
+            <% else %>
+              <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">選修</span>
+            <% end %>
+          </div>
+          <% if a.onboarding_task.description.present? %>
+            <div class="text-sm text-gray-600 mt-1"><%= a.onboarding_task.description %></div>
+          <% end %>
+          <% if a.due_date.present? %>
+            <div class="text-xs text-gray-500 mt-1">到期：<%= a.due_date %></div>
+          <% end %>
+        </div>
+
+        <div>
+          <% if a.pending? %>
+            <%= button_to "完成", my_complete_task_path(a, as: params[:as]),
+                  method: :patch,
+                  class: "px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700" %>
+          <% elsif a.done? %>
+            <span class="text-green-700 font-medium">✅ 已完成</span>
+          <% else %>
+            <span class="text-amber-600 font-medium">⏳ 擱置</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
