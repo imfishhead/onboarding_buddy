@@ -72,6 +72,8 @@ class HomeController < ApplicationController
   end
 
   def create_message
+    puts "hello"
+    puts params
     # Create user message
     user_msg = current_session.llm_messages.create!(
       role: :user,
@@ -83,12 +85,23 @@ class HomeController < ApplicationController
     reply_text, reply_meta = Llm::Client.reply(user: current_user, session: current_session, message: user_msg)
 
     # Create assistant message
-    current_session.llm_messages.create!(
+    assistant_msg = current_session.llm_messages.create!(
       role: :assistant,
       content: reply_text,
       meta: reply_meta
     )
 
-    redirect_to root_path(as: params[:as])
+    respond_to do |format|
+      format.html { redirect_to root_path(as: params[:as]) }
+      format.json {
+        render json: {
+          success: true,
+          message: {
+            content: assistant_msg.content,
+            meta: assistant_msg.meta
+          }
+        }
+      }
+    end
   end
 end

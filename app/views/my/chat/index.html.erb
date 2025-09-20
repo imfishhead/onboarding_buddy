@@ -1,40 +1,222 @@
-<div class="max-w-3xl mx-auto p-6">
-  <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-semibold">Chatbot</h1>
-    <div class="text-sm text-gray-500">
-      以 <span class="font-medium"><%= (params[:as] || User.first.email) %></span> 身份瀏覽
-      <span class="ml-2">
-        <%= link_to "Alice", my_chat_index_path(as: "alice@tsmc.com"), class: "underline" %> |
-        <%= link_to "Bob",   my_chat_index_path(as: "bob@tsmc.com"),   class: "underline" %>
-      </span>
+<div class="h-screen flex flex-col">
+  <div class="flex-shrink-0 p-6 border-b">
+    <div class="flex justify-between items-center max-w-3xl mx-auto">
+      <h1 class="text-2xl font-semibold">Chatbot</h1>
+      <div class="text-sm text-gray-500">
+        以 <span class="font-medium"><%= (params[:as] || User.first.email) %></span> 身份瀏覽
+        <span class="ml-2">
+          <%= link_to "Alice", my_chat_index_path(as: "alice@tsmc.com"), class: "underline" %> |
+          <%= link_to "Bob",   my_chat_index_path(as: "bob@tsmc.com"),   class: "underline" %>
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="border rounded-xl p-4 bg-white mt-4 space-y-3">
-    <% @messages.each do |m| %>
-      <div class="<%= m.user? ? 'text-right' : 'text-left' %>">
-        <div class="inline-block px-3 py-2 rounded-2xl <%= m.user? ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800' %>">
-          <%= simple_format h(m.content) %>
-        </div>
-        <% if m.meta.present? %>
-          <div class="text-xs text-gray-500 mt-1 <%= m.user? ? 'text-right' : 'text-left' %>">
-            <%= m.meta.slice("intent","topics").to_json %>
+  <!-- 聊天室區域 - 只佔頁面的一半高度 -->
+  <div class="flex-1 flex flex-col max-w-3xl mx-auto w-full" style="height: 50vh;">
+    <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 border rounded-xl">
+      <% @messages.each do |m| %>
+        <div class="<%= m.user? ? 'text-right' : 'text-left' %>" data-message-id="<%= m.id %>">
+          <div class="inline-block px-3 py-2 rounded-2xl <%= m.user? ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800' %>">
+            <%= simple_format m.content %>
           </div>
-        <% end %>
-      </div>
-    <% end %>
+          <% if m.meta.present? %>
+            <div class="text-xs text-gray-500 mt-1 <%= m.user? ? 'text-right' : 'text-left' %>">
+              <%= m.meta.slice("intent","topics").to_json %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- 輸入表單區域 -->
+    <div class="flex-shrink-0 p-4 border-t bg-white">
+      <%= form_with url: my_chat_index_path, method: :post, class: "flex gap-2 items-center", id: "chat-form" do %>
+        <%= hidden_field_tag :as, params[:as] %>
+        <%= text_field_tag :q, nil, placeholder: "問我任何入職/生活問題，例如：通勤車怎麼申請？",
+              class: "flex-1 border rounded-lg px-3 py-2", id: "message-input" %>
+        <%= submit_tag "送出", class: "px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" %>
+      <% end %>
+    </div>
   </div>
 
-  <div class="mt-4">
-    <%= form_with url: my_chat_index_path, method: :post, class: "flex gap-2 items-center" do %>
-      <%= hidden_field_tag :as, params[:as] %>
-      <%= text_field_tag :q, nil, placeholder: "問我任何入職/生活問題，例如：通勤車怎麼申請？",
-            class: "flex-1 border rounded-lg px-3 py-2" %>
-      <%= submit_tag "送出", class: "px-4 py-2 bg-indigo-600 text-white rounded-lg" %>
-    <% end %>
-  </div>
+  <!-- 剩餘空間 -->
+  <div class="flex-1"></div>
 
-  <div class="mt-6">
+  <div class="flex-shrink-0 p-6">
     <%= link_to "← 回 Onboarding", my_onboarding_path(as: params[:as]), class: "underline" %>
   </div>
 </div>
+
+<style>
+  .loading-dots {
+    display: inline-block;
+    position: relative;
+    width: 40px;
+    height: 20px;
+  }
+  
+  .loading-dots div {
+    position: absolute;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #9ca3af;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  }
+  
+  .loading-dots div:nth-child(1) {
+    left: 6px;
+    animation: loading-dots1 0.6s infinite;
+  }
+  
+  .loading-dots div:nth-child(2) {
+    left: 6px;
+    animation: loading-dots2 0.6s infinite;
+  }
+  
+  .loading-dots div:nth-child(3) {
+    left: 26px;
+    animation: loading-dots2 0.6s infinite;
+  }
+  
+  .loading-dots div:nth-child(4) {
+    left: 45px;
+    animation: loading-dots3 0.6s infinite;
+  }
+  
+  @keyframes loading-dots1 {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+  
+  @keyframes loading-dots3 {
+    0% { transform: scale(1); }
+    100% { transform: scale(0); }
+  }
+  
+  @keyframes loading-dots2 {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(19px, 0); }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Chat script loaded');
+    
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    
+    console.log('Elements found:', { chatMessages, chatForm, messageInput });
+    
+    // 自動滾動到底部
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // 初始化時滾動到底部
+    scrollToBottom();
+    
+    // 表單提交處理
+    chatForm.addEventListener('submit', function(e) {
+      console.log('Form submitted');
+      e.preventDefault();
+      
+      const message = messageInput.value.trim();
+      console.log('Message:', message);
+      if (!message) return;
+      
+      // 立即添加用戶訊息到聊天室
+      addUserMessage(message);
+      
+      // 清空輸入框
+      messageInput.value = '';
+      
+      // 添加 loading 氣泡
+      addLoadingMessage();
+      
+      // 滾動到底部
+      scrollToBottom();
+      
+      // 發送 AJAX 請求
+      const formData = new FormData(chatForm);
+      
+      fetch(chatForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+      })
+      .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+      })
+      .then(data => {
+        console.log('Response data:', data);
+        if (data.success && data.message) {
+          updateLoadingMessage(data.message.content, data.message.meta);
+          scrollToBottom();
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        updateLoadingMessage('抱歉，發生錯誤，請稍後再試。');
+        scrollToBottom();
+      });
+    });
+    
+    // 添加用戶訊息
+    function addUserMessage(content) {
+      console.log('Adding user message:', content);
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'text-right';
+      messageDiv.innerHTML = `
+        <div class="inline-block px-3 py-2 rounded-2xl bg-indigo-600 text-white">
+          ${content.replace(/\n/g, '<br>')}
+        </div>
+      `;
+      chatMessages.appendChild(messageDiv);
+      console.log('User message added to DOM');
+    }
+    
+    // 添加 loading 氣泡
+    function addLoadingMessage() {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'text-left loading-message';
+      messageDiv.innerHTML = `
+        <div class="inline-block px-3 py-2 rounded-2xl bg-gray-100 text-gray-800">
+          <div class="loading-dots">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+      `;
+      chatMessages.appendChild(messageDiv);
+    }
+    
+    // 更新 loading 訊息為實際回覆
+    function updateLoadingMessage(content, meta = {}) {
+      const loadingMessage = document.querySelector('.loading-message');
+      if (loadingMessage) {
+        loadingMessage.className = 'text-left';
+        loadingMessage.innerHTML = `
+          <div class="inline-block px-3 py-2 rounded-2xl bg-gray-100 text-gray-800">
+            ${content.replace(/\n/g, '<br>')}
+          </div>
+          ${meta.intent || meta.topics ? `
+            <div class="text-xs text-gray-500 mt-1 text-left">
+              ${JSON.stringify({intent: meta.intent, topics: meta.topics})}
+            </div>
+          ` : ''}
+        `;
+      }
+    }
+  });
+</script>

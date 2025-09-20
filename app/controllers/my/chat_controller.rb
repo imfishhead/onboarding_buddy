@@ -28,16 +28,27 @@ class My::ChatController < ApplicationController
       meta: { lang: "zh-TW" }
     )
 
-    # 2) 呼叫 LLM（先用 stub，同學之後換掉）
+    # 2) 呼叫 LLM
     reply_text, reply_meta = Llm::Client.reply(user: current_user, session: current_session, message: user_msg)
 
     # 3) 存一筆助理訊息
-    current_session.llm_messages.create!(
+    assistant_msg = current_session.llm_messages.create!(
       role: :assistant,
       content: reply_text,
       meta: reply_meta
     )
 
-    redirect_to my_chat_index_path(as: params[:as])
+    respond_to do |format|
+      format.html { redirect_to my_chat_index_path(as: params[:as]) }
+      format.json {
+        render json: {
+          success: true,
+          message: {
+            content: assistant_msg.content,
+            meta: assistant_msg.meta
+          }
+        }
+      }
+    end
   end
 end
