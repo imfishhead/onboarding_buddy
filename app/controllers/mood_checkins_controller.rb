@@ -1,4 +1,4 @@
-class MoodCheckinsController < ApplicationController
+class My::MoodCheckinsController < ApplicationController
   helper_method :current_user
   def current_user
     User.find_by(email: params[:as]) || User.first

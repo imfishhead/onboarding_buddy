@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  root "my/onboarding#index"    # 仍保留 US1 首頁
+  root "home#index"             # 新的首頁 with tabs
+  post "home/message", to: "home#create_message", as: :create_message
+
+  get "onboarding", to: "my/onboarding#index"  # 保留原來的 onboarding 頁面
 
   namespace :my do
     get "onboarding", to: "onboarding#index"

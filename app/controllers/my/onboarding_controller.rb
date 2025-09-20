@@ -20,10 +20,24 @@ class My::OnboardingController < ApplicationController
 
   def complete
     assignment = current_user.task_assignments.find(params[:id])
-    assignment.update!(status: :done)
-    # 小確幸 +2
-    trigger = SmallDelightTrigger.create!(user: current_user, trigger_type: :task_done, payload: { task_id: assignment.onboarding_task_id })
-    Happiness::Accrual.call(user: current_user, source: trigger, delta: 2, reason: "完成任務小確幸")
-    redirect_to my_onboarding_path(as: params[:as]), notice: "任務完成，已加幸福能量！"
+
+    # Check if we're completing or uncompleting
+    if params[:status] == "done" || assignment.pending?
+      # Complete the task
+      assignment.update!(status: :done)
+      # Small delight +2
+      trigger = SmallDelightTrigger.create!(user: current_user, trigger_type: :task_done, payload: { task_id: assignment.onboarding_task_id })
+      Happiness::Accrual.call(user: current_user, source: trigger, delta: 2, reason: "Task completion bonus")
+      message = "Task completed, happiness points added!"
+    else
+      # Uncomplete the task
+      assignment.update!(status: :pending)
+      message = "Task completion cancelled"
+    end
+
+    respond_to do |format|
+      format.html { redirect_to root_path(as: params[:as]), notice: message }
+      format.json { render json: { success: true, message: message } }
+    end
   end
 end
