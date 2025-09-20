@@ -86,7 +86,7 @@
         <!-- Happiness Energy Bar -->
         <div class="card p-6 mb-6">
           <div class="text-center mb-4">
-            <span class="material-icons text-6xl text-yellow-400 mb-2">emoji_emotions</span>
+            <img src="https://cataas.com/cat/says/all+is+well" alt="幸福能量貓" class="mx-auto mb-2 rounded-lg shadow-lg" style="max-height: 200px;">
             <h3 class="text-lg font-semibold text-gray-900">幸福能量條</h3>
           </div>
           
@@ -325,6 +325,10 @@ document.addEventListener('DOMContentLoaded', function() {
         moodForm.reset();
         submitButton.disabled = false;
         submitButton.textContent = originalText;
+        // Reload to mood tab to update energy bar
+        setTimeout(() => {
+          window.location.href = '/?as=<%= params[:as] %>&tab=mood';
+        }, 2000);
       })
       .catch(error => {
         console.error('Error:', error);
