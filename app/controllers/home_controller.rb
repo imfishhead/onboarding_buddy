@@ -38,6 +38,37 @@ class HomeController < ApplicationController
       multiplier: 1.0,
       last_calculated_at: Time.current
     )
+
+    # Calculate mood data using moving average of last 3 check-ins
+    recent_moods = current_user.mood_checkins.order(created_at: :desc).limit(3).pluck(:score)
+
+    if recent_moods.any?
+      # Calculate weighted moving average (more recent = higher weight)
+      weights = [ 0.5, 0.3, 0.2 ] # Most recent gets highest weight
+      weighted_sum = recent_moods.each_with_index.sum { |score, index| score * (weights[index] || 0) }
+      total_weight = weights[0, recent_moods.length].sum
+      @mood_score = (weighted_sum / total_weight).round(1)
+    else
+      @mood_score = 3.0 # Default neutral mood
+    end
+
+    # Calculate trend based on recent moods
+    if recent_moods.length >= 2
+      recent_avg = recent_moods[0, 2].sum / 2.0
+      older_avg = recent_moods.length >= 3 ? recent_moods[2] : 3.0
+      @mood_trend = recent_avg > older_avg ? "up" : "flat"
+    else
+      @mood_trend = "flat"
+    end
+
+    # Mood label based on average score
+    @mood_label = case @mood_score
+    when 0..1.5 then "low"
+    when 1.5..2.5 then "tense"
+    when 2.5..3.5 then "stable"
+    when 3.5..4.5 then "fresh"
+    else "energetic"
+    end
   end
 
   def create_message

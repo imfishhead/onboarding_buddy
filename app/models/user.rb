@@ -5,4 +5,6 @@ class User < ApplicationRecord
   has_many :small_delight_triggers, dependent: :destroy
   has_many :happiness_transactions, dependent: :destroy
   has_one :happiness_wallet, dependent: :destroy
+
+  enum :department, { it: 0, hr: 1 }
 end

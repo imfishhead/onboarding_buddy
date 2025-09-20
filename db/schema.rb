@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_20_135231) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_20_205305) do
   create_table "happiness_transactions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "source_type", null: false
@@ -104,6 +104,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_20_135231) do
     t.date "start_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "department", default: 0
   end
 
   add_foreign_key "happiness_transactions", "users"
