@@ -1,22 +1,22 @@
 module MoodHelper
   def mood_emoji(score)
     case score
-    when 1 then "😢"
-    when 2 then "😐"
-    when 3 then "😊"
-    when 4 then "😄"
-    when 5 then "🤩"
+    when -1 then "😢"
+    when 0 then "😐"
+    when 1 then "😊"
+    when 2 then "😄"
+    when 3 then "🤩"
     else "😐"
     end
   end
 
   def mood_description(score)
     case score
-    when 1 then "心情不太好"
-    when 2 then "心情普通"
-    when 3 then "心情不錯"
-    when 4 then "心情很好"
-    when 5 then "心情超棒"
+    when -1 then "心情不太好"
+    when 0 then "心情普通"
+    when 1 then "心情不錯"
+    when 2 then "心情很好"
+    when 3 then "心情超棒"
     else "心情普通"
     end
   end

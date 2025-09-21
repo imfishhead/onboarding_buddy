@@ -7,17 +7,14 @@ module Llm
     API_BASE_URL = "http://127.0.0.1:8000"
 
     def self.reply(user:, session:, message:)
-      max_retries = 3
+      max_retries = 5
 
       (0...max_retries).each do |attempt|
         begin
           # 準備 API 請求參數
           request_body = {
             user_query: message.content,
-            session_id: session.id.to_s,
-            user_ctx: {
-              dept: "HR"
-            }
+            session_id: session.id.to_s
           }
 
           puts "=== LLM Client Request (Attempt #{attempt + 1}) ==="

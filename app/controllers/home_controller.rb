@@ -47,10 +47,13 @@ class HomeController < ApplicationController
       weights = [ 0.5, 0.3, 0.2 ] # Most recent gets highest weight
       weighted_sum = recent_moods.each_with_index.sum { |score, index| score * (weights[index] || 0) }
       total_weight = weights[0, recent_moods.length].sum
-      @mood_score = (weighted_sum / total_weight).round(1)
+      @mood_score = [ (weighted_sum / total_weight).round(1), 5.0 ].min # Ensure max 5.0
     else
       @mood_score = 3.0 # Default neutral mood
     end
+
+    # Ensure mood_score is within 1-5 range
+    @mood_score = [ @mood_score, 1.0 ].max
 
     # Calculate trend based on recent moods
     if recent_moods.length >= 2

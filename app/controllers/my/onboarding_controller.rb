@@ -35,9 +35,23 @@ class My::OnboardingController < ApplicationController
       message = "Task completion cancelled"
     end
 
+    # Calculate current progress
+    assignments = current_user.task_assignments
+    total = assignments.count
+    done = assignments.select(&:done?).count
+    all_completed = (done == total)
+
     respond_to do |format|
       format.html { redirect_to root_path(as: params[:as]), notice: message }
-      format.json { render json: { success: true, message: message } }
+      format.json {
+        render json: {
+          success: true,
+          message: message,
+          done: done,
+          total: total,
+          all_completed: all_completed
+        }
+      }
     end
   end
 end
