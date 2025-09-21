@@ -184,19 +184,6 @@ end
 - **MoodCheckin**：心情記錄
 - **HappinessWallet**：幸福點數錢包
 
-### 關聯關係
-```ruby
-User
-├── has_many :task_assignments
-├── has_many :llm_sessions
-├── has_many :mood_checkins
-└── has_one :happiness_wallet
-
-OnboardingTask
-├── has_many :task_assignments
-└── enum :required, { optional: 0, required: 1 }
-```
-
 ## 🎯 使用場景
 
 ### 新員工入職
@@ -210,20 +197,6 @@ OnboardingTask
 2. **進度監控**：追蹤新員工適應狀況
 3. **數據分析**：心情趨勢和完成率統計
 
-## 🔮 未來規劃
-
-### 短期目標
-- [ ] 多語言支援
-- [ ] 深色模式
-- [ ] 推播通知
-- [ ] 離線支援
-
-### 長期目標
-- [ ] 機器學習推薦
-- [ ] 社交功能
-- [ ] 進階分析
-- [ ] 第三方整合
-
 ## 🤝 貢獻指南
 
 1. Fork 專案
@@ -231,16 +204,6 @@ OnboardingTask
 3. 提交變更 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 開啟 Pull Request
-
-## 📄 授權條款
-
-本專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 文件
-
-## 📞 聯絡資訊
-
-- 專案維護者：[Your Name]
-- 電子郵件：[your.email@example.com]
-- 專案連結：[https://github.com/yourusername/onboarding_buddy]
 
 ---
 
