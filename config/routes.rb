@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "up" => "rails/health#show", as: :rails_health_check
+
   root "home#index"             # 新的首頁 with tabs
   post "home/message", to: "home#create_message", as: :create_message
 

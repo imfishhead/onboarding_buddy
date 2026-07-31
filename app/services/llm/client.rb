@@ -4,7 +4,7 @@ require "uri"
 
 module Llm
   class Client
-    API_BASE_URL = "http://127.0.0.1:8000"
+    API_BASE_URL = ENV.fetch("LLM_API_BASE_URL", "http://127.0.0.1:8000").delete_suffix("/")
 
     def self.reply(user:, session:, message:)
       max_retries = 5

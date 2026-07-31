@@ -76,12 +76,87 @@ app/
         └── index.html.erb           # 主頁視圖
 ```
 
-## 🚀 快速開始
+## 🐳 Docker 部署（建議）
 
 ### 環境需求
-- Ruby 3.1+
-- Rails 8.0.2+
-- Node.js (用於 Tailwind CSS)
+
+- Docker Engine 24+
+- Docker Compose v2
+
+### 第一次部署
+
+1. 建立環境變數檔：
+
+   ```bash
+   cp .env.example .env
+   openssl rand -hex 64
+   ```
+
+2. 將產生的隨機字串填入 `.env` 的 `SECRET_KEY_BASE`。如果 LLM API 不在 Docker host 的 `8000` port，也請一併修改 `LLM_API_BASE_URL`。
+
+3. 建置並在背景啟動：
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+4. 確認服務狀態：
+
+   ```bash
+   docker compose ps
+   docker compose logs -f web
+   ```
+
+   預設可由 [http://localhost:3000](http://localhost:3000) 開啟。容器啟動時會自動執行 `rails db:prepare`，不需要另外 migrate。
+
+### 更新部署
+
+拉取新版程式後重新建置即可：
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+Compose 使用 named volume `onboarding_buddy_storage` 保存 SQLite 資料庫與本機上傳檔案；重建或替換 `web` 容器不會清除資料。請勿使用 `docker compose down --volumes`，除非確定要刪除所有持久化資料。
+
+### 常用指令
+
+```bash
+# 查看狀態與健康檢查結果
+docker compose ps
+
+# 查看即時 log
+docker compose logs -f web
+
+# 執行 Rails console
+docker compose exec web bin/rails console
+
+# 手動執行 migration
+docker compose exec web bin/rails db:migrate
+
+# 停止服務（保留資料）
+docker compose down
+```
+
+### Docker 環境變數
+
+| 變數 | 必填 | 預設值 | 說明 |
+| --- | --- | --- | --- |
+| `SECRET_KEY_BASE` | 是 | 無 | Rails production session／簽章密鑰，請使用隨機值 |
+| `APP_PORT` | 否 | `3000` | 對外開放的 host port |
+| `LLM_API_BASE_URL` | 否 | `http://host.docker.internal:8000` | LLM API base URL，不包含 `/route` |
+| `RAILS_LOG_LEVEL` | 否 | `info` | Rails log level |
+
+目前 production 使用 SQLite 與單一 web container，適合單機或小型部署。若要水平擴展成多個 application instances，應先改用共享式資料庫與檔案儲存。
+
+## 🚀 本機開發
+
+### 環境需求
+
+- Ruby 3.3.5
+- Rails 8.0.2
+- Node.js 與 npm
 - SQLite3
 
 ### 安裝步驟
@@ -100,14 +175,13 @@ app/
 
 3. **資料庫設定**
    ```bash
-   rails db:create
-   rails db:migrate
-   rails db:seed
+   bin/rails db:prepare
+   bin/rails db:seed
    ```
 
 4. **啟動伺服器**
    ```bash
-   rails server
+   bin/rails server
    ```
 
 5. **訪問應用**
@@ -117,10 +191,10 @@ app/
 
 ```bash
 # 啟動開發伺服器
-rails server
+bin/rails server
 
 # 執行測試
-rails test
+bin/rails test
 
 # 程式碼檢查
 bundle exec rubocop
@@ -150,14 +224,7 @@ bundle exec brakeman
 
 ## 🔧 配置說明
 
-### 環境變數
-```bash
-# 時區設定
-config.time_zone = "Taipei"
-
-# 資料庫
-RAILS_ENV=development
-```
+本機開發預設使用 `storage/development.sqlite3`。Production 的 primary、cache、queue 與 cable SQLite 檔案都位於 `/rails/storage`，Docker Compose 已將該路徑掛載至持久化 volume。
 
 ### 路由配置
 ```ruby
